@@ -122,7 +122,7 @@ class Field {
                 }
             }
         }
-        if ((counter == OY * OX -1) || (changes == 0)) {
+        if ((counter == ((OY * OX)/2)) || (changes == 0)) {
             matter = "Could not find a solution in " + Integer.toString(counter) + " iterations. Destination cell couldn't be reached!";
             done =!done;
         }
@@ -149,7 +149,6 @@ class Field {
     private boolean isDestination(int x, int y){
         return (x == x1) && (y == y1);
     }
-
 @Override
     public String toString(){
         return matter;
