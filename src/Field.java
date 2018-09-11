@@ -1,6 +1,5 @@
 import java.lang.*;
 
-
 class Field {
     private int counter = 1;
     private int x, x1, y, y1, OY, OX;
@@ -11,17 +10,17 @@ class Field {
     Field(int OX, int OY, int x, int y, int x1, int y1){
         this.OX = OX;
         this.OY = OY;
-        this.x = x;
-        this.y = y;
-        this.x1 = x1;
-        this.y1 = y1;
+        this.x = x-1;
+        this.y = y-1;
+        this.x1 = x1-1;
+        this.y1 = y1-1;
 
         if(isCorrect()){
             initialization();
-            if(isDestination(x,y)) {
+            if(isDestination(this.x, this.y)) {
                 matter = "0";
                 done = true;
-            }else markRelated(x, y);
+            }else markRelated(this.x, this.y);
         }
         while(!done) {
             counter++;
@@ -39,12 +38,17 @@ class Field {
         field[y][x] = -1;
     }
     private boolean isCorrect(){
+
+        if ((x >= OX) || (y >= OY) || (x < 0) || (y<0)) {
+            matter = "Initial position of figure must be in range of field!";
+            return false;
+        }
         if (((OY <3) && (OX <3)) || (OY <2) || (OX <2)){
-            System.out.print("Input data don't satisfy the conditions!");
+            matter = "Input data don't satisfy the conditions!";
             return  false;
         }
         if ((OY ==3) && (OX ==3) && ((x != x1) || (y != y1)) && (x1 == y1) && (x1 ==2)){
-            System.out.print("Input data don't satisfy the conditions!");
+            matter = "Input data don't satisfy the conditions. Purposely set inaccessible cell!";
             return false;
         }
         return true;
@@ -109,20 +113,24 @@ class Field {
         return false;
     }
     private void cellSearch(){
+        int changes = 0;
         for (int i = 0; i< OY; i++) {
             for (int j = 0; j< OX; j++) {
                 if ((field[i][j]==counter-1) && ((i!= y) || (j!= x))) {
                     if (markRelated(j,i)) return;
+                    changes++;
                 }
             }
         }
-        if (counter == OY * OX -1) {
-            matter = "Could not find a solution in " + Integer.toString(counter) + " iterations";
+        if ((counter == OY * OX -1) || (changes == 0)) {
+            matter = "Could not find a solution in " + Integer.toString(counter) + " iterations. Destination cell couldn't be reached!";
             done =!done;
         }
     }
     void printField(){
-        for (int i = 0; i< OY; i++){
+        for (int i = OY-1; i>=0; i--){
+            if ((i+1)/10 >0) System.out.print("Y" + (i+1) + " ");
+            else System.out.print(" " + "Y" + (i+1) + " ");
             for (int j = 0; j< OX; j++){
                 if ((field[i][j] == -1) || (field[i][j]/10 > 0) ){
                     System.out.print(" " + field[i][j]);
@@ -132,6 +140,10 @@ class Field {
                 }
             }
             System.out.println();
+        }
+        System.out.print("    ");
+        for (int n = 0; n<OX;) {
+            System.out.print(" " + "X" + ++n);
         }
     }
     private boolean isDestination(int x, int y){
