@@ -1,136 +1,141 @@
-import java.io.*;
 import java.lang.*;
-import java.util.*;
+
 
 class Field {
     private int counter = 1;
-    private int x1, x2, y1, y2, N, M;
+    private int x, x1, y, y1, OY, OX;
     private int[][] field;
     private String matter = "1";
-    private boolean flag = true;
+    private boolean done = false;
+    
+    Field(int OX, int OY, int x, int y, int x1, int y1){
+        this.OX = OX;
+        this.OY = OY;
+        this.x = x;
+        this.y = y;
+        this.x1 = x1;
+        this.y1 = y1;
 
-    Field() throws IOException{
-        initialization();
-        //clauseChecking();
-        setWeight(x1,y1);
-        while(flag) cellSearch();
+        if(isCorrect()){
+            initialization();
+            if(isDestination(x,y)) {
+                matter = "0";
+                done = true;
+            }else markRelated(x, y);
+        }
+        while(!done) {
+            counter++;
+            matter = Integer.toString(counter);
+            cellSearch();
+        }
     }
-    private void initialization() throws IOException{
-        try(FileReader file = new FileReader("input.txt")) {
-            BufferedReader buffer = new BufferedReader(file);
-            String s = buffer.readLine();
-            int[] bufferInt = Arrays.stream(s.split(" ")).mapToInt(Integer::parseInt).toArray();
-            N = bufferInt[0];
-            M = bufferInt[1];
-            x1 = bufferInt[2]-1;
-            y1 = bufferInt[3]-1;
-            x2 = bufferInt[4]-1;
-            y2 = bufferInt[5]-1;
-        }catch(IOException e){
-            N = M = 8;
-            System.out.print("Exception while trying to open file! Initial field " +
-                    "size has been set at 8x8");
-            System.out.print("Please, set initial position of arriving and destination cells>>");
-            BufferedReader initialization = new BufferedReader(new InputStreamReader(System.in));
-            x1 = Integer.parseInt(initialization.readLine())-1;
-            y1 = Integer.parseInt(initialization.readLine())-1;
-            x2 = Integer.parseInt(initialization.readLine())-1;
-            y2 = Integer.parseInt(initialization.readLine())-1;
-        }
-        if ((x1 == x2) && (y1 == y2)) {
-            flag = !flag;
-            matter = "0";
-            return;
-        }
-        field = new int[M][N];
+    private void initialization(){
+        field = new int[OY][OX];
+
         for (int[] i: field){
             for (int j: i) j=0;
         }
-        field[x1][y2] = 8;
+
+        field[y][x] = -1;
     }
-    private void clauseChecking(){
-        if (((N<3) && (M<3)) || (N<2) || (M<2)){ System.out.print("Input data don't satisfy the conditions!");}
-        if ((N==3) && (M==3) && ((x1!=x2) || (y1!=y2)) && (x2==y2) && (x2==2)){
-            System.out.print("Input data don't satisfy the conditions!");}
+    private boolean isCorrect(){
+        if (((OY <3) && (OX <3)) || (OY <2) || (OX <2)){
+            System.out.print("Input data don't satisfy the conditions!");
+            return  false;
+        }
+        if ((OY ==3) && (OX ==3) && ((x != x1) || (y != y1)) && (x1 == y1) && (x1 ==2)){
+            System.out.print("Input data don't satisfy the conditions!");
+            return false;
+        }
+        return true;
     }
-    private void setWeight(int x, int y){
-        if ((x+2)>=0 && (x+2)<N && (y+1)>=0 && (y+1)<M && field[x+2][y+1]==0){
-                field[x+2][y+1] = counter;
-                if ((x+2 == x2) && (y+1 == y2)) {
-                    flag = !flag;
-                    return;
-                }
-        }
-        if ((x+2)>=0 && (x+2)<N && (y-1)>=0 && (y-1)<M && field[x+2][y-1]==0){
-                field[x+2][y-1] = counter;
-                if ((x+2 == x2) && (y-1 == y2)){
-                    flag = !flag;
-                    return;
-                }
-        }
-        if ((x+1)>=0 && (x+1)<N && (y+2)>=0 && (y+2)<M && field[x+1][y+2]==0){
-                field[x+1][y+2] = counter;
-                if ((x+1 == x2) && (y+2 == y2)) {
-                    flag = !flag;
-                    return;
-                }
-        }
-        if ((x-1)>=0 && (x-1)<N && (y+2)>0 && (y+2)<M && field[x-1][y+2]==0){
-                field[x-1][y+2] = counter;
-                if ((x-1 == x2) && (y+2 == y2)){
-                    flag = !flag;
-                    return;
-                }
-        }
-        if ((x-2)>=0 && (x-2)<N && (y+1)>0 && (y+1)<M && field[x-2][y+1]==0){
-                field[x-2][y+1] = counter;
-                if ((x-2 == x2) && (y+1 == y2)){
-                    flag = !flag;
-                    return;
-                }
-        }
-        if ((x-1)>=0 && (x-1)<N && (y-2)>=0 && (y-2)<M && field[x-1][y-2]==0){
-                field[x-1][y-2] = counter;
-                if ((x-1 == x2) && (y-2 == y2)){
-                    flag = !flag;
-                    return;
-                }
-        }
-        if ((x+1)>=0 && (x+1)<N && (y-2)>=0 && (y-2)<M && field[x+1][y-2]==0){
-                field[x+1][y-2] = counter;
-                if ((x+1 == x2) && (y-2 == y2)){
-                    flag = !flag;
-                    return;
-                }
-        }
-        if ((x-2)>=0 && (x-2)<N && (y-1)>=0 && (y-1)<M && field[x-2][y-1]==0){
-                field[x-2][y-1] = counter;
-                if ((x-2 == x2) && (y-1 == y2)){
-                    flag = !flag;
-                    return;
-                }
-        }
-        counter++;
-        matter = Integer.toString(counter);
-    }
-    private void cellSearch(){
-        for (int i = 0; i<M; i++) {
-            for (int j = 0; j<N; j++) {
-                if (field[i][j]==counter-1 && (i!=x1) && (j!=y1)) setWeight(i,j);
+    private boolean markRelated(int x, int y){
+        if ((x+2)>=0 && (x+2)< OX && (y+1)>=0 && (y+1)< OY && field[y+1][x+2]==0){
+            field[y+1][x+2] = counter;
+            if (isDestination(x+2, y+1)) {
+                done = true;
+                return true;
             }
         }
-        if (counter == N*M-1) {
+        if ((x+2)>=0 && (x+2)< OX && (y-1)>=0 && (y-1)< OY && field[y-1][x+2]==0){
+            field[y-1][x+2] = counter;
+            if (isDestination(x+2,y-1)){
+                done = true;
+                return true;
+            }
+        }
+        if ((x+1)>=0 && (x+1)< OX && (y+2)>=0 && (y+2)< OY && field[y+2][x+1]==0){
+            field[y+2][x+1] = counter;
+            if (isDestination(x+1,y+2)) {
+                done = true;
+                return true;
+            }
+        }
+        if ((x-1)>=0 && (x-1)< OX && (y+2)>0 && (y+2)< OY && field[y+2][x-1]==0){
+            field[y+2][x-1] = counter;
+            if (isDestination(x-1,y+2)){
+                done = true;
+                return true;
+            }
+        }
+        if ((x-2)>=0 && (x-2)< OX && (y+1)>0 && (y+1)< OY && field[y+1][x-2]==0){
+            field[y+1][x-2] = counter;
+            if (isDestination(x-2,y+1)){
+                done = true;
+                return true;
+            }
+        }
+        if ((x-1)>=0 && (x-1)< OX && (y-2)>=0 && (y-2)< OY && field[y-2][x-1]==0){
+            field[y-2][x-1] = counter;
+            if (isDestination(x-1,y-2)){
+                done = true;
+                return true;
+            }
+        }
+        if ((x+1)>=0 && (x+1)< OX && (y-2)>=0 && (y-2)< OY && field[y-2][x+1]==0){
+            field[y-2][x+1] = counter;
+            if (isDestination(x+1,y-2)){
+                done = true;
+                return true;
+            }
+        }
+        if ((x-2)>=0 && (x-2)< OX && (y-1)>=0 && (y-1)< OY && field[y-1][x-2]==0){
+            field[y-1][x-2] = counter;
+            if (isDestination(x-2, y-1)){
+                done = true;
+                return true;
+            }
+        }
+        return false;
+    }
+    private void cellSearch(){
+        for (int i = 0; i< OY; i++) {
+            for (int j = 0; j< OX; j++) {
+                if ((field[i][j]==counter-1) && ((i!= y) || (j!= x))) {
+                    if (markRelated(j,i)) return;
+                }
+            }
+        }
+        if (counter == OY * OX -1) {
             matter = "Could not find a solution in " + Integer.toString(counter) + " iterations";
-            flag=!flag;
+            done =!done;
         }
     }
     void printField(){
-        for (int[] i: field){
-            for (int j: i){
-                System.out.print(j + "  ");
+        for (int i = 0; i< OY; i++){
+            for (int j = 0; j< OX; j++){
+                if ((field[i][j] == -1) || (field[i][j]/10 > 0) ){
+                    System.out.print(" " + field[i][j]);
+                }
+                else {
+                    System.out.print("  " + field[i][j]);
+                }
             }
             System.out.println();
         }
+    }
+    private boolean isDestination(int x, int y){
+        return (x == x1) && (y == y1);
     }
 
 @Override
