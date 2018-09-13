@@ -21,7 +21,7 @@ class Field {
                 matter = "0";
                 done = true;
             }else markRelated(this.x, this.y);
-        }
+        }else done = true;
         while(!done) {
             counter++;
             matter = Integer.toString(counter);
@@ -30,15 +30,12 @@ class Field {
     }
     private void initialization(){
         field = new int[OY][OX];
-
         for (int[] i: field){
             for (int j: i) j=0;
         }
-
         field[y][x] = -1;
     }
     private boolean isCorrect(){
-
         if ((x >= OX) || (y >= OY) || (x < 0) || (y<0)) {
             matter = "Initial position of figure must be in range of field!";
             return false;

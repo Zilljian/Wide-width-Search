@@ -4,8 +4,6 @@ import java.util.Arrays;
 
 public class Horses {
     public static void main(String[] args) throws IOException{
-        long timerStart, timerEnd;
-        timerStart = System.nanoTime();
         int x, x1, y, y1, OY, OX;
 
         try(FileReader file = new FileReader("input.txt")) {
@@ -33,12 +31,21 @@ public class Horses {
             x1 = Integer.parseInt(initialization.readLine());
             y1 = Integer.parseInt(initialization.readLine());
         }
+        long timerStart, timerEnd;
+        timerStart = System.nanoTime();
         Field field = new Field(OX, OY, x, y, x1, y1);
+        timerEnd = System.nanoTime();
+        System.out.println(String.format("%,12d",timerEnd-timerStart) + " ns");
+
+        long timeStart2 = System.nanoTime();
+        Field field2 = new Field(OX, OY, x, y, x1, y1);
+        long timeStop2 = System.nanoTime();
+        System.out.print(String.format("%,12d",timeStop2-timeStart2) + " ns");
+
         FileWriter file = new FileWriter("output.txt");
         file.write(field.toString());
         file.close();
-        timerEnd = System.nanoTime();
-        System.out.print(String.format("%,12d",timerEnd-timerStart) + " ns");
+        System.out.println(field.toString());
         //field.printField();
     }
 }
