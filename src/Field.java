@@ -6,7 +6,7 @@ class Field {
     private int[][] field;
     private String matter = "1";
     private boolean done = false;
-    
+
     Field(int OX, int OY, int x, int y, int x1, int y1){
         this.OX = OX;
         this.OY = OY;
